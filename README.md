@@ -9,6 +9,8 @@ Auto create and upgrade HA StarRocks cluster
 
 ## step 2 : 下载StarRocks_Ansible
 
+    git clone https://github.com/mklzl/starrocks_ansible.git
+
 ## step 3 : 编辑配置文件
 
 ### 编辑参与主机groups,请根据自身集群规划，编辑对应主机组
