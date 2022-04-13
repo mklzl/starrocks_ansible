@@ -1,0 +1,74 @@
+---
+- hosts: sr_hosts
+  remote_user: root
+  vars_files:
+    - ./setup_vars.yml
+  tasks:
+  - name: decompress all SR Software packages
+    unarchive:
+      src: "{{ sr_filepath }}"
+      dest: "{{ dest_filepath }}"
+      copy: yes
+  - name: mkdir meta 
+    file: 
+      path: "{{ fe_path }}/meta"
+      state: directory
+  - name: mkdir storage
+    file: 
+      path: "{{ be_path }}/storage"
+      state: directory
+  - name: scp fe.conf 
+    copy: 
+      src: "{{ fe_conf_path }}"
+      dest: "{{ fe_path }}/conf/"
+      force: yes
+  - name: scp be.conf
+    copy: 
+      src: "{{ be_conf_path }}"
+      dest: "{{ be_path }}/conf/"
+      force: yes
+  - name: export java home for start_fe
+    lineinfile: 
+      path: "{{ fe_path }}/bin/start_fe.sh"
+      insertafter: "# java"
+      line: "export JAVA_HOME={{ java_home }}"
+  - name: export java home for broker
+    lineinfile:
+      path: "{{ broker_path }}/bin/start_broker.sh"
+      insertafter: "# java"
+      line: "export JAVA_HOME={{ java_home }}"
+- hosts: master
+  remote_user: root
+  vars_files: 
+    - ./setup_vars.yml
+  tasks:
+    - name: start master
+      shell:
+        cmd: 
+          sh {{ fe_path }}/bin/start_fe.sh --daemon
+
+- hosts: follower
+  remote_user: root
+  vars_files:
+    - ./setup_vars.yml
+  tasks:
+    - name: start follower
+      shell:
+        cmd: "sh {{ fe_path }}/bin/start_fe.sh --helper {{ master }}:{{ edit_log_port }} --daemon"
+
+- hosts: backends
+  remote_user: root
+  vars_files:
+    - ./setup_vars.yml
+  tasks:
+    - name: start all backends
+      shell:
+        cmd: "sh {{ be_path }}/bin/start_be.sh --daemon"
+- hosts: brokers
+  remote_user: root
+  vars_files:
+    - ./setup_vars.yml
+  tasks:
+    - name: start all brokers
+      shell:
+        cmd: "sh {{ broker_path }}/bin/start_broker.sh --daemon"

@@ -1,0 +1,18 @@
+---
+- hosts: master
+  remote_user: root
+  vars_files:
+    - ./setup_vars.yml
+  tasks:
+    - name: add folower
+      shell:
+        cmd: echo "alter system add follower \"{{ item }}:{{ edit_log_port }}\";" | mysql -h127.0.0.1 -P{{ query_port }} -uroot
+      with_items: "{{groups.follower}}"
+    - name: add backends
+      shell:
+        cmd: echo "alter system add BACKEND \"{{ item }}:{{ heartbeat_service_port }}\";" | mysql -h127.0.0.1 -P{{ query_port }} -uroot
+      with_items: "{{groups.backends}}"
+    - name: add brokres
+      shell:
+        cmd: echo "alter system add broker broker1  \"{{ item }}:{{ broker_ipc_port }}\";" | mysql -h127.0.0.1 -P{{ query_port }} -uroot
+      with_items: "{{groups.brokers}}"
