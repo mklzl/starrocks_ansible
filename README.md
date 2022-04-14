@@ -9,6 +9,8 @@ Auto create and upgrade HA StarRocks cluster
 
 ## step 2 : 下载StarRocks_Ansible
 
+    https://github.com/mklzl/starrocks_ansible
+
 ## step 3 : 编辑配置文件
 
 ### 编辑参与主机groups,请根据自身集群规划，编辑对应主机组
@@ -92,26 +94,26 @@ Auto create and upgrade HA StarRocks cluster
 
 
 
-## step 4 : 启动初始化集群
+## step 5 : 启动初始化集群
 
       ansible-playbook -e "cluster=cluster1" ./core/setup.yml
 
-## step 5 : 添加集群角色
+## step 6 : 添加集群角色
 
     ansible-playbook -e "cluster=cluster1" ./core/add_roles.yml
 
-## step 6 : 查看集群状态
+## step 7 : 查看集群状态
 
     可以根据自己配置的具体情况，登录集群，通过show frontends;show backends;show broker;查看集群的搭建情况
 
-## step 7 : 启停集群
+## step 8 : 启停集群
 
     #stop all
     ansible-playbook -e "cluster=cluster1" ./core/stop_all.yml
     #start all
     ansible-playbook -e "cluster=cluster1" ./core/start_all.yml
 
-## step 8: 升级或者回滚集群
+## step 9: 升级或者回滚集群
 
 ### 编辑升级回滚所需配置文件
 
