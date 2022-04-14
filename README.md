@@ -1,5 +1,5 @@
 # starrocks_ansible
-Auto create and upgrade HA StarRocks cluster
+Easy to use starRocks cluster operation and maintenance tool
 
 # 玩转StarRocks_Ansible
 
