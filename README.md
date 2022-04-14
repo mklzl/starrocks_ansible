@@ -238,6 +238,13 @@ Auto create and upgrade HA StarRocks cluster
       broker_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/apache_hdfs_broker
       java_home: /usr/java/jdk1.8.0_131
       master: 192.168.1.241
+      
+      vi ./conf/cluster1.yml
+
+      ---
+      follower: [192.168.1.239,192.168.1.243]
+      backends: [192.168.1.239,192.168.1.241,192.168.1.243]
+      brokers: [192.168.1.239,192.168.1.241,192.168.1.243]
 
 * 启动初始化操作
 
