@@ -15,35 +15,35 @@ Auto create and upgrade HA StarRocks cluster
 
 * vi /etc/ansible/hosts
 
-        ## 集群参与的机器ip
-        [sr_hosts]
+        ## 集群cluster1中参与的机器ip
+        [cluster1.sr_hosts]
         192.168.1.239
         192.168.1.241
         192.168.1.243
 
-        ##fe所在机器的ip
-        [frontends]
+        ##集群cluster1中fe所在机器的ip
+        [cluster1.frontends]
         192.168.1.239
         192.168.1.241
         192.168.1.243
 
-        ##master节点所在的ip
-        [master]
+        ##集群cluster1中master节点所在的ip
+        [cluster1.master]
         192.168.1.241
 
-        ##follower所在节点的ip
-        [follower]
+        ##集群cluster1中follower所在节点的ip
+        [cluster1.follower]
         192.168.1.239
         192.168.1.243
 
-        ##be所在节点的ip
-        [backends]
+        ##集群cluster1中be所在节点的ip
+        [cluster1.backends]
         192.168.1.239
         192.168.1.241
         192.168.1.243
         
-        ##broker节点所在的ip
-        [brokers]
+        ##集群cluster1中broker节点所在的ip
+        [cluster1.brokers]
         192.168.1.239
         192.168.1.241
         192.168.1.243
@@ -81,14 +81,24 @@ Auto create and upgrade HA StarRocks cluster
       java_home: /usr/java/jdk1.8.0_131
       # master所在的机器ip
       master: 192.168.1.241
+## step 4 : 编辑当前集群配置文件
+
+* vi ./conf/cluster1.yml
+
+      ---
+      follower: [192.168.1.239,192.168.1.243]
+      backends: [192.168.1.239,192.168.1.241,192.168.1.243]
+      brokers: [192.168.1.239,192.168.1.241,192.168.1.243]
+
+
 
 ## step 4 : 启动初始化集群
 
-      ansible-playbook setup.yml
+      ansible-playbook -e "cluster=cluster1" ./core/setup.yml
 
 ## step 5 : 添加集群角色
 
-    ansible-playbook add_roles.yml
+    ansible-playbook -e "cluster=cluster1" ./core/add_roles.yml
 
 ## step 6 : 查看集群状态
 
@@ -97,15 +107,15 @@ Auto create and upgrade HA StarRocks cluster
 ## step 7 : 启停集群
 
     #stop all
-    ansible-playbook stop_all.yml
+    ansible-playbook -e "cluster=cluster1" ./core/stop_all.yml
     #start all
-    ansible-playbook start_all.yml
+    ansible-playbook -e "cluster=cluster1" ./core/start_all.yml
 
 ## step 8: 升级或者回滚集群
 
 ### 编辑升级回滚所需配置文件
 
-* vi upgrade_vars.yml
+* vi ./conf/upgrade_vars.yml
 
       ---
       #原集群be所在路径
@@ -129,11 +139,13 @@ Auto create and upgrade HA StarRocks cluster
 
 ### 执行升级或者回滚
 
-    ansible-playbook upgrade.yml
+    ansible-playbook -e "cluster=cluster1" ./core/upgrade.yml
 
 ### 使用示例
 
-#### 环境参数
+#### cluster1环境参数
+* （如有多个集群，请在对应配置中配置好对应的cluster配置，host中clusterX应当于配置文件clusterX.yml和启动命令中的clusterX保存一致）
+
 
 * 节点规划
 
@@ -177,29 +189,30 @@ Auto create and upgrade HA StarRocks cluster
       
       vi /etc/ansible/hosts 添加以下内容
 
-      [sr_hosts]
-      192.168.1.239
-      192.168.1.241
-      192.168.1.243
-
-      [frontends]
+      [cluster1.sr_hosts]
       192.168.1.239
       192.168.1.241
       192.168.1.243
       
-      [master]
-      192.168.1.241
       
-      [follower]
-      192.168.1.239
-      192.168.1.243
-      
-      [backends]
+      [cluster1.frontends]
       192.168.1.239
       192.168.1.241
       192.168.1.243
-
-      [brokers]
+      
+      [cluster1.master]
+      192.168.1.241
+      
+      [cluster1.follower]
+      192.168.1.239
+      192.168.1.243
+      [cluster1.backends]
+      192.168.1.239
+      192.168.1.241
+      192.168.1.243
+      
+      
+      [cluster1.brokers]
       192.168.1.239
       192.168.1.241
       192.168.1.243
@@ -226,10 +239,10 @@ Auto create and upgrade HA StarRocks cluster
 
 * 启动初始化操作
 
-      ansible-playbook setup.yml
+      ansible-playbook -e "cluster=cluster1"  setup.yml
 * 添加角色
 
-      ansible-playbook add_roles.yml
+      ansible-playbook -e "cluster=cluster1"  add_roles.yml
 
 #### 集群升降级
 * 前置条件
@@ -254,7 +267,7 @@ Auto create and upgrade HA StarRocks cluster
 
 * 执行升降级操作
 
-      ansible-playbook upgrade.yml
+      ansible-playbook -e "cluster=cluster1"  upgrade.yml
 
 * 查看集群状态
 
