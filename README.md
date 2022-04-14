@@ -1,6 +1,9 @@
 # starrocks_ansible
 Easy to use starRocks cluster operation and maintenance tool
 
+## 目前支持一键安装、启停、升降级starrocks集群，并且支持管理已经安装的集群
+## TODO： 扩缩容，监控部署
+
 # 玩转StarRocks_Ansible
 
 ## step 1 : 下载安装ansible
