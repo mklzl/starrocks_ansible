@@ -1,0 +1,26 @@
+---
+- hosts: "{{ cluster }}.frontends"
+  remote_user: root
+  vars_files:
+    - ../conf/setup_vars.yml    
+  tasks:
+    - name: start all frontends
+      shell:
+        cmd: "sh {{ fe_path }}/bin/start_fe.sh --daemon"
+- hosts: "{{ cluster }}.backends"
+  remote_user: root
+  vars_files:
+    - ../conf/setup_vars.yml    
+  tasks:
+    - name: start all backends
+      shell:
+        cmd: "sh {{ be_path }}/bin/start_be.sh --daemon"
+- hosts: "{{ cluster }}.brokers"
+  remote_user: root
+  vars_files:
+    - ../conf/setup_vars.yml
+  tasks:
+    - name: start all brokers
+      shell:
+        cmd: "sh {{ broker_path }}/bin/start_broker.sh --daemon"
+
