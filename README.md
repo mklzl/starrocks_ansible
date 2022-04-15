@@ -1,5 +1,8 @@
 # starrocks_ansible
-Auto create and upgrade HA StarRocks cluster
+Easy to use starRocks cluster operation and maintenance tool
+
+## 目前支持一键安装、启停、升降级starrocks集群，并且支持管理已经安装的集群
+## TODO： 扩缩容，监控部署
 
 # 玩转StarRocks_Ansible
 
@@ -8,6 +11,8 @@ Auto create and upgrade HA StarRocks cluster
     yum install ansible
 
 ## step 2 : 下载StarRocks_Ansible
+
+    https://github.com/mklzl/starrocks_ansible
 
 ## step 3 : 编辑配置文件
 
@@ -92,26 +97,26 @@ Auto create and upgrade HA StarRocks cluster
 
 
 
-## step 4 : 启动初始化集群
+## step 5 : 启动初始化集群
 
       ansible-playbook -e "cluster=cluster1" ./core/setup.yml
 
-## step 5 : 添加集群角色
+## step 6 : 添加集群角色
 
     ansible-playbook -e "cluster=cluster1" ./core/add_roles.yml
 
-## step 6 : 查看集群状态
+## step 7 : 查看集群状态
 
     可以根据自己配置的具体情况，登录集群，通过show frontends;show backends;show broker;查看集群的搭建情况
 
-## step 7 : 启停集群
+## step 8 : 启停集群
 
     #stop all
     ansible-playbook -e "cluster=cluster1" ./core/stop_all.yml
     #start all
     ansible-playbook -e "cluster=cluster1" ./core/start_all.yml
 
-## step 8: 升级或者回滚集群
+## step 9: 升级或者回滚集群
 
 ### 编辑升级回滚所需配置文件
 
@@ -236,6 +241,13 @@ Auto create and upgrade HA StarRocks cluster
       broker_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/apache_hdfs_broker
       java_home: /usr/java/jdk1.8.0_131
       master: 192.168.1.241
+      
+      vi ./conf/cluster1.yml
+
+      ---
+      follower: [192.168.1.239,192.168.1.243]
+      backends: [192.168.1.239,192.168.1.241,192.168.1.243]
+      brokers: [192.168.1.239,192.168.1.241,192.168.1.243]
 
 * 启动初始化操作
 
