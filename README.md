@@ -371,21 +371,24 @@ Easy to use starRocks cluster operation and maintenance tool
  这里测试扩缩容 192.168.1.239机器的fe be broker
  * 编辑配置文件
 
-      vi scale_fe_vars.yml
+  vi scale_fe_vars.yml
       
       ---
+      
       frontends: 192.168.1.239
 
       
-      vi scale_be_vars.yml
+  vi scale_be_vars.yml
       
       ---
+      
       backends: 192.168.1.239
 
       
-      vi scale_broker_vars.yml
+  vi scale_broker_vars.yml
       
       ---
+      
       brokers: 192.168.1.239
       
 * 执行扩容
