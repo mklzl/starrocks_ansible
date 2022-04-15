@@ -2,7 +2,8 @@
 - hosts: "{{ cluster }}.sr_hosts"
   remote_user: root
   vars_files:
-    - ./setup_vars.yml
+    - ../conf/setup_vars.yml
+    - ../conf/{{ cluster }}.yml
   tasks:
   - name: decompress all SR Software packages
     unarchive:
@@ -11,64 +12,65 @@
       copy: yes
   - name: mkdir meta 
     file: 
-      path: "{{ fe_path }}/meta"
+      path: "{{ sr_home }}/fe/meta"
       state: directory
   - name: mkdir storage
     file: 
-      path: "{{ be_path }}/storage"
+      path: "{{ sr_home }}/be/storage"
       state: directory
   - name: scp fe.conf 
     copy: 
       src: "{{ fe_conf_path }}"
-      dest: "{{ fe_path }}/conf/"
+      dest: "{{ sr_home }}/fe/conf/"
       force: yes
   - name: scp be.conf
     copy: 
       src: "{{ be_conf_path }}"
-      dest: "{{ be_path }}/conf/"
+      dest: "{{ sr_home }}/be/conf/"
       force: yes
   - name: export java home for start_fe
     lineinfile: 
-      path: "{{ fe_path }}/bin/start_fe.sh"
+      path: "{{ sr_home }}/fe/bin/start_fe.sh"
       insertafter: "# java"
       line: "export JAVA_HOME={{ java_home }}"
   - name: export java home for broker
     lineinfile:
-      path: "{{ broker_path }}/bin/start_broker.sh"
+      path: "{{ sr_home }}/apache_hdfs_broker/bin/start_broker.sh"
       insertafter: "# java"
       line: "export JAVA_HOME={{ java_home }}"
 - hosts: "{{ cluster }}.master"
   remote_user: root
   vars_files: 
-    - ./setup_vars.yml
+    - ../conf/setup_vars.yml
   tasks:
     - name: start master
       shell:
         cmd: 
-          sh {{ fe_path }}/bin/start_fe.sh --daemon
+          sh {{ sr_home }}/fe/bin/start_fe.sh --daemon
 
 - hosts: "{{ cluster }}.follower"
   remote_user: root
   vars_files:
-    - ./setup_vars.yml
+    - ../conf/setup_vars.yml
+    - ../conf/{{ cluster }}.yml
   tasks:
     - name: start follower
       shell:
-        cmd: "sh {{ fe_path }}/bin/start_fe.sh --helper {{ master }}:{{ edit_log_port }} --daemon"
+        cmd: "sh {{ sr_home }}/fe/bin/start_fe.sh --helper {{ master }}:{{ edit_log_port }} --daemon"
 
 - hosts: "{{ cluster }}.backends"
   remote_user: root
   vars_files:
-    - ./setup_vars.yml
+    - ../conf/setup_vars.yml
   tasks:
     - name: start all backends
       shell:
-        cmd: "sh {{ be_path }}/bin/start_be.sh --daemon"
+        cmd: "sh {{ sr_home }}/be/bin/start_be.sh --daemon"
 - hosts: "{{ cluster }}.brokers"
   remote_user: root
   vars_files:
-    - ./setup_vars.yml
+    - ../conf/setup_vars.yml
   tasks:
     - name: start all brokers
       shell:
-        cmd: "sh {{ broker_path }}/bin/start_broker.sh --daemon"
+        cmd: "sh {{ sr_home }}/apache_hdfs_broker/bin/start_broker.sh --daemon"

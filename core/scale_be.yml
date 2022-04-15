@@ -1,0 +1,45 @@
+---
+- hosts: "{{ cluster }}.scale_be"
+  remote_user: root
+  vars_files:
+    - ../conf/setup_vars.yml
+    - ../conf/scale_be_vars.yml
+  tasks:
+  - name: scale {{ action }} be process
+    unarchive: 
+      src: "{{ sr_filepath }}"
+      dest: "{{ dest_filepath }}"
+      copy: yes
+    when: action == "out"
+  - name: mkdir be storage
+    file: 
+      path: "{{ sr_home }}/be/storage"
+      state: directory
+    when: action == "out"
+  - name: scp be.conf
+    copy: 
+      src: "{{ be_conf_path }}"
+      dest: "{{ sr_home }}/be/conf/"
+      force: yes
+    when: action == "out"
+  - name: start be
+    shell:
+      cmd: "sh {{ sr_home }}/be/bin/start_be.sh --daemon"
+    when: action == "out"
+- hosts: "{{ cluster }}.master"
+  remote_user: root
+  vars_files:
+    - ../conf/setup_vars.yml
+    - ../conf/scale_be_vars.yml
+  tasks:
+  - name: scale {{ action }} be roles
+    shell:
+      cmd: echo "alter system add backend \"{{ item }}:{{ heartbeat_service_port }}\";" | mysql -h127.0.0.1 -P{{ query_port }} -uroot  
+    with_items: "{{backends}}"
+    when: action == "out"
+  - name: scale {{ action }} be roles
+    shell:
+      cmd: echo "alter system decommission backend \"{{ item }}:{{ heartbeat_service_port }}\";" | mysql -h127.0.0.1 -P{{ query_port }} -uroot
+    with_items: "{{backends}}"
+    when: action == "in"
+

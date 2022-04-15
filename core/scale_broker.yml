@@ -1,0 +1,43 @@
+---
+- hosts: "{{ cluster }}.scale_broker"
+  remote_user: root
+  vars_files:
+    - ../conf/setup_vars.yml
+    - ../conf/scale_broker_vars.yml
+  tasks:
+  - name: scale {{ action }} broker process
+    unarchive: 
+      src: "{{ sr_filepath }}"
+      dest: "{{ dest_filepath }}"
+      copy: yes
+    when: action == "out"
+  - name: export java home for broker
+    lineinfile:
+      path: "{{ sr_home }}/apache_hdfs_broker/bin/start_broker.sh"
+      insertafter: "# java"
+      line: "export JAVA_HOME={{ java_home }}"
+  - name: start broker
+    shell:
+      cmd: "sh {{ sr_home }}/apache_hdfs_broker/bin/start_broker.sh --daemon"
+    when: action == "out"
+  - name: stop broker
+    shell:
+      cmd: "sh {{ sr_home }}/apache_hdfs_broker/bin/stop_broker.sh"
+    when: action == "in"
+- hosts: "{{ cluster }}.master"
+  remote_user: root
+  vars_files:
+    - ../conf/setup_vars.yml
+    - ../conf/scale_broker_vars.yml
+  tasks:
+  - name: scale {{ action }} broker roles
+    shell:
+      cmd: echo "alter system add broker broker1 \"{{ item }}:{{ broker_ipc_port }}\";" | mysql -h127.0.0.1 -P{{ query_port }} -uroot  
+    with_items: "{{brokers}}"
+    when: action == "out"
+  - name: scale {{ action }} broker roles
+    shell:
+      cmd: echo "alter system drop broker broker1 \"{{ item }}:{{ broker_ipc_port }}\";" | mysql -h127.0.0.1 -P{{ query_port }} -uroot
+    with_items: "{{brokers}}"
+    when: action == "in"
+

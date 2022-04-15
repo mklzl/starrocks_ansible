@@ -1,16 +1,12 @@
 ---
-priority_networks: 192.168.1.0/24
 heartbeat_service_port: 9056
 edit_log_port: 9016
 query_port: 9036
 broker_ipc_port: 8000
 sr_filepath: /home/starrocks/starrocks_ansible/StarRocks-2.1.3.tar.gz
 dest_filepath: /home/starrocks/starrocks_ansible
+sr_home: /home/starrocks/starrocks_ansible/StarRocks-2.1.3
 fe_conf_path: /home/starrocks/fe.conf
 be_conf_path: /home/starrocks/be.conf
-fe_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/fe
-be_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/be
-broker_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/apache_hdfs_broker
 java_home: /usr/java/jdk1.8.0_131
-master: 192.168.1.241
 

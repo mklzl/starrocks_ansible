@@ -6,18 +6,18 @@
   tasks:
     - name:  decompress new SR Software packages
       unarchive:
-        src: "{{ new_pkg_path }}"
-        dest: "{{ new_filepath }}"
+        src: "{{ newsr_filepath }}"
+        dest: "{{ newsr_destpath }}"
         copy: yes
 
     - name: export java home for start_fe
       lineinfile: 
-        path: "{{ new_fe_path }}/bin/start_fe.sh"
+        path: "{{ newsr_home }}/fe/bin/start_fe.sh"
         insertafter: "# java"
         line: "export JAVA_HOME={{ java_home }}"
     - name: export java home for broker
       lineinfile:
-        path: "{{ new_broker_path }}/bin/start_broker.sh"
+        path: "{{ newsr_home }}/apache_hdfs_broker/bin/start_broker.sh"
         insertafter: "# java"
         line: "export JAVA_HOME={{ java_home }}"
 
@@ -25,47 +25,51 @@
   remote_user: root
   vars_files:
     - ../conf/upgrade_vars.yml
+    - ../conf/setup_vars.yml
   tasks:
     - name: update backends
       shell:
         cmd: 
-          mv {{ new_be_path }}/conf/be.conf {{ new_be_path }}/conf/new_be.conf &&
-          sh {{ be_path }}/bin/stop_be.sh &&
-          cp -r {{ new_be_path }} {{ be_path }}/../ && 
-          sh {{ be_path }}/bin/start_be.sh --daemon
+          mv {{ newsr_home }}/be/conf/be.conf {{ newsr_home }}/be/conf/new_be.conf &&
+          sh {{ sr_home }}/be/bin/stop_be.sh &&
+          cp -r {{ newsr_home }}/be {{ sr_home }}/be/../ && 
+          sh {{ sr_home }}/be/bin/start_be.sh --daemon
 - hosts: "{{ cluster }}.brokers"
   remote_user: root
   vars_files:
     - ../conf/upgrade_vars.yml
+    - ../conf/setup_vars.yml
   tasks:
     - name: update brokers
       shell: 
         cmd: 
-          mv {{ new_broker_path }}/conf/apache_hdfs_broker.conf {{ new_broker_path }}/conf/new_apache_hdfs_broker.conf &&
-          sh {{ broker_path }}/bin/stop_broker.sh &&
-          cp -r {{ new_broker_path }} {{ broker_path }}/../ &&
-          sh {{ broker_path }}/bin/start_broker.sh --daemon 
+          mv {{ newsr_home }}/apache_hdfs_broker/conf/apache_hdfs_broker.conf {{ newsr_home }}/apache_hdfs_broker/conf/new_apache_hdfs_broker.conf &&
+          sh {{ sr_home }}/apache_hdfs_broker/bin/stop_broker.sh &&
+          cp -r {{ newsr_home }}/apache_hdfs_broker {{ sr_home }}/apache_hdfs_broker/../ &&
+          sh {{ sr_home }}/apache_hdfs_broker/bin/start_broker.sh --daemon 
 - hosts: "{{ cluster }}.follower"
   remote_user: root
   vars_files:
     - ../conf/upgrade_vars.yml
+    - ../conf/setup_vars.yml
   tasks:
     - name:
       shell:
         cmd:  
-          mv {{ new_fe_path }}/conf/fe.conf {{ new_fe_path }}/conf/new_fe.conf &&
-          sh {{ fe_path }}/bin/stop_fe.sh &&
-          cp -r {{ new_fe_path }} {{ fe_path }}/../ &&
-          sh {{ fe_path }}/bin/start_fe.sh --daemon
+          mv {{ newsr_home }}/fe/conf/fe.conf {{ newsr_home }}/fe/conf/new_fe.conf &&
+          sh {{ sr_home }}/fe/bin/stop_fe.sh &&
+          cp -r {{ newsr_home }}/fe {{ sr_home }}/fe/../ &&
+          sh {{ sr_home }}/fe/bin/start_fe.sh --daemon
 - hosts: "{{ cluster }}.master"
   remote_user: root
   vars_files:
     - ../conf/upgrade_vars.yml
+    - ../conf/setup_vars.yml
   tasks:
     - name:
       shell:
         cmd: 
-          mv {{ new_fe_path }}/conf/fe.conf {{ new_fe_path }}/conf/new_fe.conf &&
-          sh {{ fe_path }}/bin/stop_fe.sh &&
-          cp -r {{ new_fe_path }} {{ fe_path }}/../ &&
-          sh {{ fe_path }}/bin/start_fe.sh --daemon 
+          mv {{ newsr_home }}/fe/conf/fe.conf {{ newsr_home }}/fe/conf/new_fe.conf &&
+          sh {{ sr_home }}/fe/bin/stop_fe.sh &&
+          cp -r {{ newsr_home }}/fe {{ sr_home }}/fe/../ &&
+          sh {{ sr_home }}/fe/bin/start_fe.sh --daemon 

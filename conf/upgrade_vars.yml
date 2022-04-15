@@ -1,10 +1,5 @@
 ---
-be_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/be
-fe_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/fe
-broker_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/apache_hdfs_broker
-new_pkg_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.4.tar.gz
-new_filepath: /home/starrocks/starrocks_ansible
-new_be_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.4/be
-new_fe_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.4/fe
-new_broker_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.4/apache_hdfs_broker
+newsr_filepath: /home/starrocks/starrocks_ansible/StarRocks-2.1.4.tar.gz
+newsr_destpath: /home/starrocks/starrocks_ansible
+newsr_home: /home/starrocks/starrocks_ansible/StarRocks-2.1.4
 java_home: /usr/java/jdk1.8.0_131

@@ -6,7 +6,7 @@
   tasks:
     - name: stop all brokers
       shell:
-        cmd: "sh {{ broker_path }}/bin/stop_broker.sh"
+        cmd: "sh {{ sr_home }}/apache_hdfs_broker/bin/stop_broker.sh"
 - hosts: "{{ cluster }}.backends"
   remote_user: root
   vars_files:
@@ -14,7 +14,7 @@
   tasks:
     - name: stop all backends
       shell:
-        cmd: "sh {{ be_path }}/bin/stop_be.sh"
+        cmd: "sh {{ sr_home }}/be/bin/stop_be.sh"
 - hosts: "{{ cluster }}.frontends"
   remote_user: root
   vars_files:
@@ -22,5 +22,5 @@
   tasks:
     - name: stop all frontends
       shell:
-        cmd: "sh {{ fe_path }}/bin/stop_fe.sh"
+        cmd: "sh {{ sr_home }}/fe/bin/stop_fe.sh"
 

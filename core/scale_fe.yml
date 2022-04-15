@@ -1,0 +1,56 @@
+---
+- hosts: "{{ cluster }}.scale_fe"
+  remote_user: root
+  vars_files:
+    - ../conf/setup_vars.yml
+    - ../conf/scale_fe_vars.yml
+    - ../conf/{{ cluster }}.yml
+  tasks:
+  - name: scale {{ action }} fe process
+    unarchive: 
+      src: "{{ sr_filepath }}"
+      dest: "{{ dest_filepath }}"
+      copy: yes
+    when: action == "out"
+  - name: mkdir fe meta
+    file: 
+      path: "{{ sr_home }}/fe/meta"
+      state: directory
+    when: action == "out"
+  - name: scp fe.conf
+    copy: 
+      src: "{{ fe_conf_path }}"
+      dest: "{{ sr_home }}/fe/conf/"
+      force: yes
+    when: action == "out"
+  - name: export java home for start_fe
+    lineinfile: 
+      path: "{{ sr_home }}/fe/bin/start_fe.sh"
+      insertafter: "# java"
+      line: "export JAVA_HOME={{ java_home }}"
+    when: action == "out" 
+  - name: start fe
+    shell:
+      cmd: "sh {{ sr_home }}/fe/bin/start_fe.sh --helper {{ master }}:{{ edit_log_port }}  --daemon"
+    when: action == "out"
+  - name: stop fe
+    shell:
+      cmd: "sh {{ sr_home }}/fe/bin/stop_fe.sh"
+    when: action == "in"
+- hosts: "{{ cluster }}.master"
+  remote_user: root
+  vars_files:
+    - ../conf/setup_vars.yml
+    - ../conf/scale_fe_vars.yml
+  tasks:
+  - name: scale {{ action }} fe roles
+    shell:
+      cmd: echo "alter system add follower \"{{ item }}:{{ edit_log_port }}\";" | mysql -h127.0.0.1 -P{{ query_port }} -uroot  
+    with_items: "{{frontends}}"
+    when: action == "out"
+  - name: scale {{ action }} fe roles
+    shell:
+      cmd: echo "alter system drop follower \"{{ item }}:{{ edit_log_port }}\";" | mysql -h127.0.0.1 -P{{ query_port }} -uroot
+    with_items: "{{frontends}}"
+    when: action == "in"
+
