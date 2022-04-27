@@ -1,0 +1,60 @@
+---
+- hosts: "{{ cluster }}.sr_hosts"
+  remote_user: root
+  tasks: 
+  - name: check sshkey
+    shell: cat /root/.ssh/authorized_keys |grep 'ssh-rsa'
+    register: ssh_key_res
+    ignore_errors: true
+
+  - name: check firewalld
+    shell: systemctl status firewalld |grep loaded
+    register: firewalld_res
+    ignore_errors: true
+
+  - name:  no sshkey
+    debug: msg="sshkey is not configured, please set it"
+    when: ssh_key_res is failure
+
+  - name: firewalld is running
+    debug: msg="firewalld is running , please check it "
+    when: firewalld_res is failure
+
+
+- hosts: "{{ cluster }}.frontends"
+  remote_user: root
+  tasks:
+  - name: check java
+    shell: java -version
+    register: java_res
+    ignore_errors: true
+ 
+  - name: no java
+    debug: msg="java is not configured, please check it"
+    when: java_res is failure
+
+
+  
+- hosts: "{{ cluster }}.master"
+  remote_user: root
+  tasks:
+  - name: check mysql client
+    shell: whereis mysql |grep mysql
+    register: mysql_res
+    ignore_errors: true
+
+  - name: no mysql client
+    debug: msg="mysql-client is not configured,please check it"
+    when: mysql_res is failure
+
+- hosts: "{{ cluster }}.backends"
+  remote_user: root
+  tasks:
+  - name: check avx2
+    shell: cat /proc/cpuinfo |grep avx2
+    register: avx2_res
+    ignore_errors: true
+
+  - name: no avx2
+    debug: msg="cpu not supported avx2"
+    when: avx2_res is failure
