@@ -5,22 +5,22 @@
     - ../conf/setup_vars.yml
   tasks:
     - name: start all frontends
-      shell: grep -c 'export JAVA_HOME' "{{ doris_home }}/fe/bin/start_fe.sh"
+      shell: grep -c 'export JAVA_HOME' "{{ sr_home }}/fe/bin/start_fe.sh"
       register: result
       ignore_errors: true
     - name: java home is ok
       shell:
-        cmd: "sh {{ doris_home }}/fe/bin/start_fe.sh --daemon"
+        cmd: "sh {{ sr_home }}/fe/bin/start_fe.sh --daemon"
       when: result.rc == 0
     - name: java home is not ok
       lineinfile:
-        path: "{{ doris_home }}/fe/bin/start_fe.sh"
+        path: "{{ sr_home }}/fe/bin/start_fe.sh"
         insertafter: "# java"
         line: "export JAVA_HOME={{ java_home }}"
       when: result.rc != 0
     - name: java home is achive
       shell:
-        cmd: "sh {{ doris_home }}/fe/bin/start_fe.sh --daemon"
+        cmd: "sh {{ sr_home }}/fe/bin/start_fe.sh --daemon"
       when: result.rc != 0
 - hosts: "{{ cluster }}.backends"
   remote_user: root
