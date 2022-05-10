@@ -2,11 +2,26 @@
 - hosts: "{{ cluster }}.frontends"
   remote_user: root
   vars_files:
-    - ../conf/setup_vars.yml    
+    - ../conf/setup_vars.yml
   tasks:
     - name: start all frontends
+      shell: grep -c 'export JAVA_HOME' "{{ doris_home }}/fe/bin/start_fe.sh"
+      register: result
+      ignore_errors: true
+    - name: java home is ok
       shell:
-        cmd: "sh {{ sr_home }}/fe/bin/start_fe.sh --daemon"
+        cmd: "sh {{ doris_home }}/fe/bin/start_fe.sh --daemon"
+      when: result.rc == 0
+    - name: java home is not ok
+      lineinfile:
+        path: "{{ doris_home }}/fe/bin/start_fe.sh"
+        insertafter: "# java"
+        line: "export JAVA_HOME={{ java_home }}"
+      when: result.rc != 0
+    - name: java home is achive
+      shell:
+        cmd: "sh {{ doris_home }}/fe/bin/start_fe.sh --daemon"
+      when: result.rc != 0
 - hosts: "{{ cluster }}.backends"
   remote_user: root
   vars_files:
@@ -21,6 +36,20 @@
     - ../conf/setup_vars.yml
   tasks:
     - name: start all brokers
+      shell: grep -c 'export JAVA_HOME' "{{ sr_home }}/apache_hdfs_broker/bin/start_broker.sh"
+      register: result
+      ignore_errors: true
+    - name: java home is ok
       shell:
         cmd: "sh {{ sr_home }}/apache_hdfs_broker/bin/start_broker.sh --daemon"
-
+      when: result.rc == 0
+    - name: java home is not ok
+      lineinfile:
+        path: "{{ sr_home }}/apache_hdfs_broker/bin/start_broker.sh"
+        insertafter: "# java"
+        line: "export JAVA_HOME={{ java_home }}"
+      when: result.rc != 0
+    - name: java home is achive
+      shell:
+        cmd: "sh {{ sr_home }}/apache_hdfs_broker/bin/start_broker.sh --daemon"
+      when: result.rc != 0
