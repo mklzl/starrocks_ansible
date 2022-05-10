@@ -38,14 +38,20 @@
       path: "{{ sr_home }}/apache_hdfs_broker/bin/start_broker.sh"
       insertafter: "# java"
       line: "export JAVA_HOME={{ java_home }}"
+
 - hosts: "{{ cluster }}.master"
   remote_user: root
-  vars_files: 
+  vars_files:
     - ../conf/setup_vars.yml
+    - ../conf/{{ cluster }}.yml
   tasks:
+    - name: add fe.conf
+      lineinfile:
+        dest: "{{ fe_conf_path }}"
+        line: "priority_networks={{ fe_priority_networks }}"
     - name: start master
       shell:
-        cmd: 
+        cmd:
           sh {{ sr_home }}/fe/bin/start_fe.sh --daemon
 
 - hosts: "{{ cluster }}.follower"
@@ -54,6 +60,10 @@
     - ../conf/setup_vars.yml
     - ../conf/{{ cluster }}.yml
   tasks:
+    - name: add fe.conf
+      lineinfile:
+        dest: "{{ fe_conf_path }}"
+        line: "priority_networks={{ fe_priority_networks }}"
     - name: start follower
       shell:
         cmd: "sh {{ sr_home }}/fe/bin/start_fe.sh --helper {{ master }}:{{ edit_log_port }} --daemon"
@@ -62,10 +72,16 @@
   remote_user: root
   vars_files:
     - ../conf/setup_vars.yml
+    - ../conf/{{ cluster }}.yml
   tasks:
+    - name: add be.conf
+      lineinfile:
+        dest: "{{ be_conf_path }}"
+        line: "priority_networks={{ be_priority_networks }}"
     - name: start all backends
       shell:
         cmd: "sh {{ sr_home }}/be/bin/start_be.sh --daemon"
+
 - hosts: "{{ cluster }}.brokers"
   remote_user: root
   vars_files:
