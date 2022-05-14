@@ -173,4 +173,3 @@
     - name: start all brokers
       shell:
         cmd: "sh {{ sr_home }}/apache_hdfs_broker/bin/start_broker.sh --daemon"
-  git remote add origin
