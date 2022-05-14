@@ -34,7 +34,6 @@
     when: java_res is failure
 
 
-  
 - hosts: "{{ cluster }}.master"
   remote_user: root
   tasks:
@@ -46,6 +45,7 @@
   - name: no mysql client
     debug: msg="mysql-client is not configured,please check it"
     when: mysql_res is failure
+
 
 - hosts: "{{ cluster }}.backends"
   remote_user: root

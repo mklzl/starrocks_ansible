@@ -45,12 +45,12 @@
   tasks:
   - name: scale {{ action }} fe roles
     shell:
-      cmd: echo "alter system add follower \"{{ item }}:{{ edit_log_port }}\";" | mysql -h127.0.0.1 -P{{ query_port }} -uroot  
+      cmd: echo "alter system add follower \"{{ item }}:{{ edit_log_port }}\";" | mysql -h{{ master }} -P{{ query_port }} -uroot
     with_items: "{{frontends}}"
     when: action == "out"
   - name: scale {{ action }} fe roles
     shell:
-      cmd: echo "alter system drop follower \"{{ item }}:{{ edit_log_port }}\";" | mysql -h127.0.0.1 -P{{ query_port }} -uroot
+      cmd: echo "alter system drop follower \"{{ item }}:{{ edit_log_port }}\";" | mysql -h{{ master }} -P{{ query_port }} -uroot
     with_items: "{{frontends}}"
     when: action == "in"
 

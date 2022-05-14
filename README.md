@@ -70,47 +70,55 @@ Easy to use starRocks cluster operation and maintenance tool
 * vi setup_vars.yml
 
       ---
-      # 生产环境的fe.conf所在路径。
-      # 如果没有特殊配置，建议使用安装包内的fe.conf，请根据机器情况酌情配置priority_networks
-      fe_conf_path: /home/starrocks/fe.conf
-      
-      #生产环境的be.conf所在路径。
-      # 如果没有特殊配置，建议使用安装包内的be.conf，请根据机器情况酌情配置priority_networks
-      be_conf_path: /home/starrocks/be.conf
-      
-      # heartbeat_service_port，请和be.conf中的heartbeat_service_port配置保持一致
-      heartbeat_service_port: 9056
-      
-      # edit_log_port，请和fe.conf中的edit_log_port配置保持一致
-      edit_log_port: 9016
-      
-      # query_port，请和fe.conf中的query_port配置保持一致
-      query_port: 9036
-      
-      # broker_ipc_port，请和apache_hdfs_broker.conf中的broker_ipc_port保持一致
-      broker_ipc_port: 8000
-      
+      # fe节点的ip网段配置
+      # fe_priority_networks: 192.168.213.0/24
+  
+      # be节点的ip网段配置
+      # be_priority_networks: 192.168.213.0/24
+
       # 待安装的starrocks压缩包所在路径，请写绝对路径
       sr_filepath: /home/starrocks/starrocks_ansible/StarRocks-2.1.3.tar.gz
-      
+  
       # starrocks压缩包要解压安装的位置
       dest_filepath: /home/starrocks/starrocks_ansible
       
-      #解压后，sr的安装目录
-      sr_home: /home/starrocks/starrocks_ansible/StarRocks-2.1.3
+      # 解压后，sr的安装目录
+      sr_home: /home/starrocks/starrocks_ansible/StarRocks-2.1.3  
+
+      # 首次安装请保持与安装内的fe.conf路径一致，如基于已有的fe.conf安装请指定已有的fe.conf路径
+      fe_conf_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/fe/conf/fe.conf
+
+      # 首次安装请保持与安装内的fe.conf路径一致，如基于已有的fe.conf安装请指定已有的fe.conf路径
+      be_conf_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/be/conf/be.conf
       
-      （已移除） # 安装后，starrocks中fe所在的位置，如无特殊情况，一般在dest_path下当前安装版本目录下的fe
-      （已移除） fe_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/fe
-      （已移除） # 安装后，starrocks中be所在的位置，如无特殊情况，一般在dest_path下当前安装版本目录下的be
-      （已移除） be_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/be
-      （已移除） # 安装后，starrocks中broker所在的位置，如无特殊情况，一般在dest_path下当前安装版本目录下的apache_hdfs_broker
-      （已移除） broker_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/apache_hdfs_broker
-      
+      # fe元数据存储目录，如无特殊情况请配置到fe目录下
+      metadata_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/fe/meta
+  
+      # be数据存储目录，建议配置到挂载磁盘容量大的目录下(df -h查看哪块磁盘容量大)
+      storage_root_path: /extdata/storage
+
       # 机器java_home所在路径，请确保所有机器保持一致
       java_home: /usr/java/jdk1.8.0_131
-      
-      （已移除） # master所在的机器ip 
-      （已移除） master: 192.168.1.241 
+  
+
+      # fe端口配置，如没有特殊情况(端口冲突)无需配置默认即可
+      http_port: 8030
+      rpc_port: 9020
+      query_port: 9030
+      edit_log_port: 9010
+  
+      # be端口配置，如没有特殊情况(端口冲突)无需配置默认即可
+      be_port: 9060
+      webserver_port: 8040
+      heartbeat_service_port: 9050
+      brpc_port: 8060
+  
+      # broker端口配置，如没有特殊情况(端口冲突)无需配置默认即可
+      broker_ipc_port: 8000
+
+
+  
+
 
 ## step 4 : 编辑当前集群配置文件
 
@@ -120,18 +128,13 @@ Easy to use starRocks cluster operation and maintenance tool
       follower: [192.168.1.239,192.168.1.243]
       backends: [192.168.1.239,192.168.1.241,192.168.1.243]
       brokers: [192.168.1.239,192.168.1.241,192.168.1.243]
-      
-      ##（增加配置,在对应集群配置文件中指定该集群的master）
       master: 192.168.1.241
-      ##（增加配置,在对应集群配置文件中指定fe节点的ip网段）
-      fe_priority_networks: 192.168.1.0/24
-      ##（增加配置,在对应集群配置文件中指定be节点的ip网段）
-      fe_priority_networks: 192.168.1.0/24
+
 
 
 ## step 5 : 检查机器环境（请根据提示，检查对应环境是否具备）
 
-      ansible-playbook -e "cluster=cluster1" ./core/setup.yml
+      ansible-playbook -e "cluster=cluster1"  ./core/check_env.yml
       
 
 ## step 6 : 启动初始化集群

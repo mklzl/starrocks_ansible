@@ -1,5 +1,5 @@
 ---
-newsr_filepath: /home/starrocks/starrocks_ansible/StarRocks-2.1.4.tar.gz
+newsr_filepath: /home/starrocks/starrocks_ansible/StarRocks-2.1.6.tar.gz
 newsr_destpath: /home/starrocks/starrocks_ansible
-newsr_home: /home/starrocks/starrocks_ansible/StarRocks-2.1.4
-java_home: /usr/java/jdk1.8.0_131
+newsr_home: /home/starrocks/starrocks_ansible/StarRocks-2.1.6
+java_home: /opt/module/jdk1.8.0_212

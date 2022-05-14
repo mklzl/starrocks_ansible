@@ -12,27 +12,12 @@
       copy: yes
   - name: mkdir meta 
     file: 
-      path: "{{ sr_home }}/fe/meta"
+      path: "{{ metadata_path }}"
       state: directory
   - name: mkdir storage
     file: 
-      path: "{{ sr_home }}/be/storage"
+      path: "{{ storage_root_path }}"
       state: directory
-  - name: scp fe.conf 
-    copy: 
-      src: "{{ fe_conf_path }}"
-      dest: "{{ sr_home }}/fe/conf/"
-      force: yes
-  - name: scp be.conf
-    copy: 
-      src: "{{ be_conf_path }}"
-      dest: "{{ sr_home }}/be/conf/"
-      force: yes
-  - name: export java home for start_fe
-    lineinfile: 
-      path: "{{ sr_home }}/fe/bin/start_fe.sh"
-      insertafter: "# java"
-      line: "export JAVA_HOME={{ java_home }}"
   - name: export java home for broker
     lineinfile:
       path: "{{ sr_home }}/apache_hdfs_broker/bin/start_broker.sh"
@@ -45,10 +30,46 @@
     - ../conf/setup_vars.yml
     - ../conf/{{ cluster }}.yml
   tasks:
-    - name: add fe.conf
+    - name: alter fe_priority_networks
       lineinfile:
-        dest: "{{ fe_conf_path }}"
-        line: "priority_networks={{ fe_priority_networks }}"
+        dest: "{{ sr_home }}/fe/conf/fe.conf"
+        insertafter: "# priority_networks"
+        line: "priority_networks = {{ be_priority_networks }}\n"
+    - name: alter fe http_port
+      replace:
+        path: "{{ sr_home }}/fe/conf/fe.conf"
+        regexp: "8030"
+        replace: {{ http_port }}
+    - name: alter fe rpc_port
+      replace:
+        path: "{{ sr_home }}/fe/conf/fe.conf"
+        regexp: "9020"
+        replace: {{ rpc_port }}
+    - name: alter fe query_port
+      replace:
+        path: "{{ sr_home }}/fe/conf/fe.conf"
+        regexp: "9030"
+        replace: {{ query_port }}
+    - name: alter fe edit_log_port
+      replace:
+        path: "{{ sr_home }}/fe/conf/fe.conf"
+        regexp: "9010"
+        replace: {{ edit_log_port }}
+    - name: alter fe metadata_dir
+      replace:
+        path: "{{ sr_home }}/fe/conf/fe.conf"
+        regexp: "9010"
+        replace: {{ edit_log_port }}
+    - name: alter fe metadir
+      lineinfile:
+        dest: "{{ sr_home }}/fe/conf/fe.conf"
+        insertafter: "# store metadata"
+        line: "meta_dir = {{ metadata_path }}\n"
+    - name: scp fe.conf
+      copy:
+        src: "{{ fe_conf_path }}"
+        dest: "{{ sr_home }}/fe/conf/"
+        force: yes
     - name: start master
       shell:
         cmd:
@@ -60,10 +81,41 @@
     - ../conf/setup_vars.yml
     - ../conf/{{ cluster }}.yml
   tasks:
-    - name: add fe.conf
+    - name: alter fe_priority_networks
       lineinfile:
-        dest: "{{ fe_conf_path }}"
-        line: "priority_networks={{ fe_priority_networks }}"
+        dest: "{{ sr_home }}/fe/conf/fe.conf"
+        insertafter: "# priority_networks"
+        line: "priority_networks = {{ fe_priority_networks }}\n"
+    - name: alter fe http_port
+      replace:
+        path: "{{ sr_home }}/fe/conf/fe.conf"
+        regexp: "8030"
+        replace: {{ http_port }}
+    - name: alter fe rpc_port
+      replace:
+        path: "{{ sr_home }}/fe/conf/fe.conf"
+        regexp: "9020"
+        replace: {{ rpc_port }}
+    - name: alter fe query_port
+      replace:
+        path: "{{ sr_home }}/fe/conf/fe.conf"
+        regexp: "9030"
+        replace: {{ query_port }}
+    - name: alter fe edit_log_port
+      replace:
+        path: "{{ sr_home }}/fe/conf/fe.conf"
+        regexp: "9010"
+        replace: {{ edit_log_port }}
+    - name: alter fe metadir
+      lineinfile:
+        dest: "{{ sr_home }}/fe/conf/fe.conf"
+        insertafter: "# store metadata"
+        line: "meta_dir = {{ metadata_path }}\n"
+    - name: scp fe.conf
+      copy:
+        src: "{{ fe_conf_path }}"
+        dest: "{{ sr_home }}/fe/conf/"
+        force: yes
     - name: start follower
       shell:
         cmd: "sh {{ sr_home }}/fe/bin/start_fe.sh --helper {{ master }}:{{ edit_log_port }} --daemon"
@@ -74,10 +126,41 @@
     - ../conf/setup_vars.yml
     - ../conf/{{ cluster }}.yml
   tasks:
-    - name: add be.conf
+    - name: alter be_priority_networks
       lineinfile:
-        dest: "{{ be_conf_path }}"
-        line: "priority_networks={{ be_priority_networks }}"
+        dest: "{{ sr_home }}/be/conf/be.conf"
+        insertafter: "# priority_networks"
+        line: "priority_networks = {{ be_priority_networks }}\n"
+    - name: alter be be_port
+      replace:
+        path: "{{ sr_home }}/be/conf/be.conf"
+        regexp: "9060"
+        replace: "{{ be_port }}"
+    - name: alter be webserver_port
+      replace:
+        path: "{{ sr_home }}/be/conf/be.conf"
+        regexp: "8040"
+        replace: "{{ webserver_port }}"
+    - name: alter be heartbeat_service_port
+      replace:
+        path: "{{ sr_home }}/be/conf/be.conf"
+        regexp: "9050"
+        replace: "{{ heartbeat_service_port }}"
+    - name: alter be brpc_port
+      replace:
+        path: "{{ sr_home }}/be/conf/be.conf"
+        regexp: "8060"
+        replace: "{{ brpc_port }}"
+    - name: alter fe metadir
+      lineinfile:
+        dest: "{{ sr_home }}/fe/conf/fe.conf"
+        insertafter: "# storage_root_path"
+        line: "storage_root_path = {{ storage_root_path }}\n"
+    - name: scp be.conf
+      copy:
+        src: "{{ be_conf_path }}"
+        dest: "{{ sr_home }}/be/conf/"
+        force: yes
     - name: start all backends
       shell:
         cmd: "sh {{ sr_home }}/be/bin/start_be.sh --daemon"
