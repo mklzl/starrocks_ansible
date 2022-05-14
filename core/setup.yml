@@ -151,9 +151,9 @@
         path: "{{ sr_home }}/be/conf/be.conf"
         regexp: "8060"
         replace: "{{ brpc_port }}"
-    - name: alter fe metadir
+    - name: alter be metadir
       lineinfile:
-        dest: "{{ sr_home }}/fe/conf/fe.conf"
+        dest: "{{ sr_home }}/be/conf/be.conf"
         insertafter: "# storage_root_path"
         line: "storage_root_path = {{ storage_root_path }}\n"
     - name: scp be.conf
@@ -173,3 +173,4 @@
     - name: start all brokers
       shell:
         cmd: "sh {{ sr_home }}/apache_hdfs_broker/bin/start_broker.sh --daemon"
+  git remote add origin

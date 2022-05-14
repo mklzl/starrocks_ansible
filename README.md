@@ -125,10 +125,10 @@ Easy to use starRocks cluster operation and maintenance tool
 * vi ./conf/cluster1.yml
 
       ---
-      follower: [192.168.1.239,192.168.1.243]
-      backends: [192.168.1.239,192.168.1.241,192.168.1.243]
-      brokers: [192.168.1.239,192.168.1.241,192.168.1.243]
-      master: 192.168.1.241
+      follower: [192.168.213.162,192.168.213.163]
+      backends: [192.168.213.162,192.168.213.163,192.168.213.164]
+      brokers: [192.168.213.162,192.168.213.163,192.168.213.164]
+      master: 192.168.213.162
 
 
 
@@ -157,6 +157,8 @@ Easy to use starRocks cluster operation and maintenance tool
     ansible-playbook -e "cluster=cluster1" ./core/start_all.yml
 
 ## step 10: 升级或者回滚集群
+
+#TO DO
 
 ### 编辑升级回滚所需配置文件
 
