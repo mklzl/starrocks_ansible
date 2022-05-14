@@ -39,27 +39,27 @@
       replace:
         path: "{{ sr_home }}/fe/conf/fe.conf"
         regexp: "8030"
-        replace: {{ http_port }}
+        replace: "{{ http_port }}"
     - name: alter fe rpc_port
       replace:
         path: "{{ sr_home }}/fe/conf/fe.conf"
         regexp: "9020"
-        replace: {{ rpc_port }}
+        replace: "{{ rpc_port }}"
     - name: alter fe query_port
       replace:
         path: "{{ sr_home }}/fe/conf/fe.conf"
         regexp: "9030"
-        replace: {{ query_port }}
+        replace: "{{ query_port }}"
     - name: alter fe edit_log_port
       replace:
         path: "{{ sr_home }}/fe/conf/fe.conf"
         regexp: "9010"
-        replace: {{ edit_log_port }}
+        replace: "{{ edit_log_port }}"
     - name: alter fe metadata_dir
       replace:
         path: "{{ sr_home }}/fe/conf/fe.conf"
         regexp: "9010"
-        replace: {{ edit_log_port }}
+        replace: "{{ edit_log_port }}"
     - name: alter fe metadir
       lineinfile:
         dest: "{{ sr_home }}/fe/conf/fe.conf"
@@ -90,22 +90,22 @@
       replace:
         path: "{{ sr_home }}/fe/conf/fe.conf"
         regexp: "8030"
-        replace: {{ http_port }}
+        replace: "{{ http_port }}"
     - name: alter fe rpc_port
       replace:
         path: "{{ sr_home }}/fe/conf/fe.conf"
         regexp: "9020"
-        replace: {{ rpc_port }}
+        replace: "{{ rpc_port }}"
     - name: alter fe query_port
       replace:
         path: "{{ sr_home }}/fe/conf/fe.conf"
         regexp: "9030"
-        replace: {{ query_port }}
+        replace: "{{ query_port }}"
     - name: alter fe edit_log_port
       replace:
         path: "{{ sr_home }}/fe/conf/fe.conf"
         regexp: "9010"
-        replace: {{ edit_log_port }}
+        replace: "{{ edit_log_port }}"
     - name: alter fe metadir
       lineinfile:
         dest: "{{ sr_home }}/fe/conf/fe.conf"
