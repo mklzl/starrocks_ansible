@@ -22,48 +22,49 @@ Easy to use starRocks cluster operation and maintenance tool
 
         ## 集群cluster1中参与的机器ip
         [cluster1.sr_hosts]
-        192.168.1.239
-        192.168.1.241
-        192.168.1.243
+        192.168.0.162
+        192.168.0.163
+        192.168.0.164
 
         ##集群cluster1中fe所在机器的ip
         [cluster1.frontends]
-        192.168.1.239
-        192.168.1.241
-        192.168.1.243
+        192.168.0.162
+        192.168.0.163
+        192.168.0.164
 
         ##集群cluster1中master节点所在的ip
         [cluster1.master]
-        192.168.1.241
+        192.168.0.162
 
         ##集群cluster1中follower所在节点的ip
         [cluster1.follower]
-        192.168.1.239
-        192.168.1.243
+        192.168.0.163
+        192.168.0.164
 
         ##集群cluster1中be所在节点的ip
         [cluster1.backends]
-        192.168.1.239
-        192.168.1.241
-        192.168.1.243
-        
-        ## 要进行扩缩容的fe所在的ip
-        [cluster1.scale_fe]
-        192.168.1.239
-
-        ## 要进行扩缩容的be所在的ip
-        [cluster1.scale_be]
-        192.168.1.239
-         
-        ## 要进行扩缩容的broker所在的ip
-        [cluster1.scale_broker]
-        192.168.1.239
+        192.168.0.162
+        192.168.0.163
+        192.168.0.164
 
         ##集群cluster1中broker节点所在的ip
         [cluster1.brokers]
-        192.168.1.239
-        192.168.1.241
-        192.168.1.243
+        192.168.0.162
+        192.168.0.163
+        192.168.0.164
+        
+        ## 要进行扩缩容的fe所在的ip
+        [cluster1.scale_fe]
+        192.168.0.162
+
+        ## 要进行扩缩容的be所在的ip
+        [cluster1.scale_be]
+        192.168.0.165
+         
+        ## 要进行扩缩容的broker所在的ip
+        [cluster1.scale_broker]
+        192.168.0.165
+
 
 ### 编辑初始化安装机器配置变量文件
 
