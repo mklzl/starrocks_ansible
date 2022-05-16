@@ -34,12 +34,12 @@
   tasks:
   - name: scale {{ action }} be roles
     shell:
-      cmd: echo "alter system add backend \"{{ item }}:{{ heartbeat_service_port }}\";" | mysql -h127.0.0.1 -P{{ query_port }} -uroot  
+      cmd: echo "alter system add backend \"{{ item }}:{{ heartbeat_service_port }}\";" | mysql -h{{ master }} -P{{ query_port }} -uroot
     with_items: "{{backends}}"
     when: action == "out"
   - name: scale {{ action }} be roles
     shell:
-      cmd: echo "alter system decommission backend \"{{ item }}:{{ heartbeat_service_port }}\";" | mysql -h127.0.0.1 -P{{ query_port }} -uroot
+      cmd: echo "alter system decommission backend \"{{ item }}:{{ heartbeat_service_port }}\";" | mysql -h{{ master }} -P{{ query_port }} -uroot
     with_items: "{{backends}}"
     when: action == "in"
 

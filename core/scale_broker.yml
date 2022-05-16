@@ -32,12 +32,12 @@
   tasks:
   - name: scale {{ action }} broker roles
     shell:
-      cmd: echo "alter system add broker broker1 \"{{ item }}:{{ broker_ipc_port }}\";" | mysql -h127.0.0.1 -P{{ query_port }} -uroot  
+      cmd: echo "alter system add broker broker1 \"{{ item }}:{{ broker_ipc_port }}\";" | mysql -h{{ master }} -P{{ query_port }} -uroot
     with_items: "{{brokers}}"
     when: action == "out"
   - name: scale {{ action }} broker roles
     shell:
-      cmd: echo "alter system drop broker broker1 \"{{ item }}:{{ broker_ipc_port }}\";" | mysql -h127.0.0.1 -P{{ query_port }} -uroot
+      cmd: echo "alter system drop broker broker1 \"{{ item }}:{{ broker_ipc_port }}\";" | mysql -h{{ master }} -P{{ query_port }} -uroot
     with_items: "{{brokers}}"
     when: action == "in"
 
