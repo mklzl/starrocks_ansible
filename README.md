@@ -159,7 +159,6 @@ Easy to use starRocks cluster operation and maintenance tool
 
 ## step 10: 升级或者回滚集群
 
-#TO DO
 
 ### 编辑升级回滚所需配置文件
 
