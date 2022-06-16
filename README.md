@@ -238,6 +238,17 @@ Easy to use starRocks cluster operation and maintenance tool
 * fe
         
         ansible-playbook -e "cluster=cluster1 action=out" ./core/scale_fe.yml
+#### 前置环境补充：
+
+#### mysql一键部署：
+
+- hosts下添加需要安装部署mysql的机器ip
+- conf目录下添加mysql密码
+- ansible-playbook mysql.yml即可
+
+补充：自动部署了远程访问以及大小写不敏感
+        
+        
 ### 使用示例
 
 #### cluster1环境参数
