@@ -6,9 +6,11 @@ Easy to use starRocks cluster operation and maintenance tool
 
 # 玩转StarRocks_Ansible
 
-## step 1 : 下载安装ansible
+## step 1 : 下载安装ansible、docker、docker-compose（后二者为监控告警所用）
 
-    yum install ansible
+    yum -y install ansible
+    yum -y install docker
+    yum -y install docker-compose
 
 ## step 2 : 下载StarRocks_Ansible
 
@@ -65,6 +67,35 @@ Easy to use starRocks cluster operation and maintenance tool
         [cluster1.scale_broker]
         192.168.213.165
 
+        ## prometheus所在的ip
+        [prometheus]
+        192.168.0.233
+      
+        ## grafana所在的ip
+        [grafana]    
+        192.168.0.233
+
+        ## node-exporter所在的ip
+        [node-exporter]
+        192.168.0.233
+     
+        ## alertmanager所在的ip
+        [alertmanager]
+        192.168.0.233
+
+        ## be节点宕机重启节点
+        [be_auto_start]
+        192.168.0.231
+        192.168.0.232
+        192.168.0.233
+
+        ## fe节点宕机重启节点
+        [fe_auto_start]
+        192.168.0.231
+        192.168.0.232
+        192.168.0.233
+
+
 
 ### 编辑初始化安装机器配置变量文件
 
@@ -117,7 +148,22 @@ Easy to use starRocks cluster operation and maintenance tool
       # broker端口配置，如没有特殊情况(端口冲突)无需配置默认即可
       broker_ipc_port: 8000
 
+## 监控服务放在另外一个配置文件：
 
+* vi ./conf/monitor_vars.yml
+#安装路径
+prometheus_dest_path: /opt/module
+node_exporter_dest_path: /opt/module
+alertmanager_dest_path: /opt/module
+grafana_dest_path: /opt/module
+pushgateway_dest_path: /opt/module
+
+#监控服务ip/端口
+fe: '"192.168.0.231:11110","192.168.0.232:11110","192.168.0.233:11110"'
+be: '"192.168.0.231:11111","192.168.0.232:11111","192.168.0.233:11111"'
+alertmanager: 192.168.0.233:9093
+node_exporter: '"192.168.0.231:9100","192.168.0.232:9100","192.168.0.233:9100","192.168.0.234:9100","192.168.0.235:9100","192.168.0.236:9100"'
+pushgateway: '"192.168.0.233:9091"'
   
 
 
