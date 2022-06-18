@@ -1,0 +1,8 @@
+groups:
+- name: down_alert
+  rules:
+  - alert: service_down                 # 告警名称
+    expr: up == 0                       # 告警的触发条件，参考Prometheus高级查询来设定
+    for: 1m                             # 满足告警条件持续时间多久后，才会发送告警
+    annotations:                        # 解析项，详细解释告警信息
+      summary: "{{ $labels.instance  }}服务已经宕机了超过1分钟需要定位原因"
