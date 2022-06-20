@@ -1,0 +1,18 @@
+- hosts: node-exporter
+  remote_user: root
+  vars_files:
+    - ../conf/monitor_vars.yml
+    - ../conf/setup_vars.yml
+  tasks:
+  - name: mkdir dest path
+    file:
+      path: "{{ node_exporter_dest_path }}"
+      state: directory
+
+  - name: cp docker compose yaml to dest
+    copy:
+      src: "{{ starrocks_ansible_home}}/files/node-exporter"
+      dest: "{{ node_exporter_dest_path }}/"
+
+  - name: start docker yaml
+    shell: docker-compose -f "{{ node_exporter_dest_path }}/node-exporter/docker-compose.yaml" up -d

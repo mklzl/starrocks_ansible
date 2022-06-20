@@ -1,0 +1,40 @@
+# groups：组告警
+groups:
+# name：组名。报警规则组名称
+- name: disk_high_alert
+  # rules：定义角色
+  rules:
+  # alert：告警名称。 任何实例5分钟内无法访问发出告警
+  - alert: disk_too_high
+    # expr：表达式。 获取磁盘使用率 大于百分之80 触发
+    expr: 100 * (node_filesystem_size_bytes{fstype=~"xfs|ext4"} - node_filesystem_avail_bytes) / node_filesystem_size_bytes > 80
+    # for：持续时间。 表示持续一分钟获取不到信息，则触发报警。0表示不使用持续时间
+    for: 1m
+    # labels：定义当前告警规则级别
+    labels:
+      # severity: 指定告警级别。
+      severity: error
+    # annotations: 注释 告警通知
+    annotations:
+      # 调用标签具体指附加通知信息
+      summary: "Instance {{ $labels.instance  }} ：{{ $labels.mountpoint }} 分区使用率过高" # 自定义摘要
+      description: "{{ $labels.instance  }} ： {{ $labels.job  }} ：{{ $labels.mountpoint  }} 这个分区使用大于百分之80% (当前值：{{ $value }})" # 自定义具体描述
+
+
+  - alert: NodeCpuUsage
+    expr: 100 - avg(irate(node_cpu_seconds_total{mode="idle"}[1m])) by(instance)*100 > 80
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Instance {{ $labels.instance }} : CPU使用率过高"
+      description: "{{ $labels.instance }} CPU使用大于80% (当前值: {{ $value }})"
+
+  - alert: HostMemoryUsage
+    expr: (1-((node_memory_Buffers_bytes + node_memory_Cached_bytes + node_memory_MemFree_bytes)/node_memory_MemTotal_bytes))*100 > 50
+    for: 1m
+    annotations:
+      title: "主机内存使用率超过50%"
+      description: "{{ $labels.instance }} 内存使用率超过50% (当前使用率：{{ $value }}%)"
+    labels:
+      severity: warning

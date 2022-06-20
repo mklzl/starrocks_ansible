@@ -1,0 +1,29 @@
+- hosts: be_auto_start
+  remote_user: root
+  vars_files:
+    - ../conf/monitor_vars.yml
+    - ../conf/setup_vars.yml
+  tasks:
+    - name: get super start
+      shell: yum -y install supervisor
+
+    - name: alter conf
+      lineinfile:
+        path: /etc/supervisord.conf
+        insertafter: EOF
+        line: "[program:task]\ncommand=cmd\nautostart=true\nautorestart=true\nstartsecs=0\nuser=root"
+
+    - name: replace be name
+      replace:
+        path: "/etc/supervisord.conf"
+        regexp: "task"
+        replace: "be_auto"
+
+    - name: replace be cmd
+      replace:
+        path: "/etc/supervisord.conf"
+        regexp: "cmd"
+        replace: "{{ sr_dest_filepath }}/StarRocks-2.2.0/be/bin/start_be.sh --daemon"
+
+    - name: start supervisor
+      shell: supervisord -c /etc/supervisord.conf; supervisorctl reload

@@ -1,0 +1,54 @@
+---
+- hosts: mysql
+  remote_user: root
+  vars_files:
+    - ../conf/setup_vars.yml
+  tasks:
+  - name: install mysql once
+    shell:
+      cmd: yum -y install wget
+  - name: install mysql two
+    shell:
+      cmd: wget http://dev.mysql.com/get/mysql57-community-release-el7-8.noarch.rpm
+  - name: install mysql three
+    shell:
+      cmd: yum -y localinstall mysql57-community-release-el7-8.noarch.rpm --nogpgcheck
+  - name: install mysql over
+    shell:
+      cmd: yum -y install mysql-community-server --nogpgcheck
+  - name: start mysql
+    shell:
+      cmd: systemctl start mysqld
+  - name: check mysqld
+    shell: ps -ef |grep mysql |grep -v grep
+    register: result
+    ignore_errors: true
+
+  - name: success
+    debug: msg="mysql success be install"
+    when: result.rc == 0
+  - name: error
+    debug: msg="result.stderr_lines"
+    when: result.rc!=0
+  - name: set no password enter mysql
+    lineinfile:
+      path: /etc/my.cnf
+      line: "skip-grant-tables"
+  - name: set big or small all OK
+    lineinfile:
+      path: /etc/my.cnf
+      line: "lower_case_table_names=1"
+- name: restart mysql
+    shell:
+      cmd: systemctl restart mysqld
+  - name: set root % and %
+    shell:
+      cmd: echo " flush privileges ;alter user \"root\"@\"localhost\" identified by \"{{ mysql_password }}\";create user 'root'@'%' identified with mysql_native_password by \"{{ mysql_password }}\"; grant all privileges on *.* to 'root'@'%' with grant option; flush privileges;" | mysql -uroot
+  - name: remove no password enter
+    replace:
+      path: /etc/my.cnf
+      regexp: "skip-grant-tables"
+      replace: '########'
+  - name: restart mysql
+    shell:
+      cmd: systemctl restart mysqld

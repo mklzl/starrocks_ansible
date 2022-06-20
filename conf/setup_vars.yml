@@ -1,4 +1,6 @@
 ---
+starrocks_ansible_home: /opt/starrocks_ansible
+mysql_password: root
 fe_priority_networks: 192.168.213.0/24
 be_priority_networks: 192.168.213.0/24
 
