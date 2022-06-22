@@ -18,6 +18,12 @@
     file: 
       path: "{{ storage_root_path }}"
       state: directory
+  - name: export java home for start_fe
+    lineinfile: 
+      path: "{{ sr_home }}/fe/bin/start_fe.sh"
+      insertafter: "# java"
+      line: "export JAVA_HOME={{ java_home }}"
+
   - name: export java home for broker
     lineinfile:
       path: "{{ sr_home }}/apache_hdfs_broker/bin/start_broker.sh"

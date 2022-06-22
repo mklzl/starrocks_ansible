@@ -18,7 +18,7 @@
     when: action == "out"
   - name: scp be.conf
     copy: 
-      src: "{{ be_conf_path }}"
+      src: "{{ sr_home }}/be/conf/be.conf"
       dest: "{{ sr_home }}/be/conf/"
       force: yes
     when: action == "out"
@@ -31,15 +31,16 @@
   vars_files:
     - ../conf/setup_vars.yml
     - ../conf/scale_be_vars.yml
+    - ../conf/{{ cluster }}.yml
   tasks:
   - name: scale {{ action }} be roles
     shell:
       cmd: echo "alter system add backend \"{{ item }}:{{ heartbeat_service_port }}\";" | mysql -h{{ master }} -P{{ query_port }} -uroot
-    with_items: "{{backends}}"
+    with_items: "{{scale_backends}}"
     when: action == "out"
   - name: scale {{ action }} be roles
     shell:
       cmd: echo "alter system decommission backend \"{{ item }}:{{ heartbeat_service_port }}\";" | mysql -h{{ master }} -P{{ query_port }} -uroot
-    with_items: "{{backends}}"
+    with_items: "{{scale_backends}}"
     when: action == "in"
 

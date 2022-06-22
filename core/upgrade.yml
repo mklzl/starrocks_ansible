@@ -15,6 +15,7 @@
         path: "{{ newsr_home }}/fe/bin/start_fe.sh"
         insertafter: "# java"
         line: "export JAVA_HOME={{ java_home }}"
+
     - name: export java home for broker
       lineinfile:
         path: "{{ newsr_home }}/apache_hdfs_broker/bin/start_broker.sh"

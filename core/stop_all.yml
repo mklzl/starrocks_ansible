@@ -15,12 +15,19 @@
     - name: stop all backends
       shell:
         cmd: "sh {{ sr_home }}/be/bin/stop_be.sh"
-- hosts: "{{ cluster }}.frontends"
+- hosts: "{{ cluster }}.follower"
   remote_user: root
   vars_files:
     - ../conf/setup_vars.yml
   tasks:
-    - name: stop all frontends
+    - name: stop all follower
       shell:
         cmd: "sh {{ sr_home }}/fe/bin/stop_fe.sh"
-
+- hosts: "{{ cluster }}.master"
+  remote_user: root
+  vars_files:
+    - ../conf/setup_vars.yml
+  tasks:
+    - name: stop master
+      shell:
+        cmd: "sh {{ sr_home }}/fe/bin/stop_fe.sh"
