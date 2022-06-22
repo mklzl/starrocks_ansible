@@ -1,24 +1,24 @@
 ---
-starrocks_ansible_home: /opt/starrocks_ansible
+starrocks_ansible_home: /home/starrocks/sr_ansible/starrocks_ansible
 mysql_password: root
-fe_priority_networks: 192.168.213.0/24
-be_priority_networks: 192.168.213.0/24
+fe_priority_networks: 192.168.1.0/24
+be_priority_networks: 192.168.1.0/24
 
-sr_filepath: /home/starrocks/starrocks_ansible/StarRocks-2.1.4.tar.gz
+sr_filepath: /home/starrocks/starrocks_ansible/StarRocks-2.1.8.tar.gz
 dest_filepath: /home/starrocks/starrocks_ansible
-sr_home: /home/starrocks/starrocks_ansible/StarRocks-2.1.4
-fe_conf_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.4/fe/conf/fe.conf
-be_conf_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.4/be/conf/be.conf
-metadata_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.4/fe/meta
-storage_root_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.4/be/storage
-java_home: /opt/module/jdk1.8.0_212
+sr_home: /home/starrocks/starrocks_ansible/StarRocks-2.1.8
+fe_conf_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.8/fe/conf/fe.conf
+be_conf_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.8/be/conf/be.conf
+metadata_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.8/fe/meta
+storage_root_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.8/be/storage
+java_home: /usr/java/jdk1.8.0_131
 
-http_port: 8030
-rpc_port: 9020
-query_port: 9030
-edit_log_port: 9010
-be_port: 9060
-webserver_port: 8040
-heartbeat_service_port: 9050
-brpc_port: 8060
+http_port: 8036
+rpc_port: 9026
+query_port: 9036
+edit_log_port: 9016
+be_port: 9066
+webserver_port: 8046
+heartbeat_service_port: 9056
+brpc_port: 8066
 broker_ipc_port: 8000

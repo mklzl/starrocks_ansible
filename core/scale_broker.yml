@@ -29,15 +29,16 @@
   vars_files:
     - ../conf/setup_vars.yml
     - ../conf/scale_broker_vars.yml
+    - ../conf/{{ cluster }}.yml
   tasks:
   - name: scale {{ action }} broker roles
     shell:
       cmd: echo "alter system add broker broker1 \"{{ item }}:{{ broker_ipc_port }}\";" | mysql -h{{ master }} -P{{ query_port }} -uroot
-    with_items: "{{brokers}}"
+    with_items: "{{scale_brokers}}"
     when: action == "out"
   - name: scale {{ action }} broker roles
     shell:
       cmd: echo "alter system drop broker broker1 \"{{ item }}:{{ broker_ipc_port }}\";" | mysql -h{{ master }} -P{{ query_port }} -uroot
-    with_items: "{{brokers}}"
+    with_items: "{{scale_brokers}}"
     when: action == "in"
 

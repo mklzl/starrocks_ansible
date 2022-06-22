@@ -1,475 +1,247 @@
-# starrocks_ansible
-Easy to use starRocks cluster operation and maintenance tool
-
-## 目前支持一键安装、启停、升降级、扩缩容、监控starrocks集群，并且支持管理已经安装的集群
 
 
-# 玩转StarRocks_Ansible
+# starrocks_ansible使用指南
 
-## step 1 : 下载安装ansible、docker、docker-compose（后二者为监控告警所用）
+## 前置环境确认
 
-    yum -y install ansible
-    yum -y install docker
-    yum -y install docker-compose
+* 免密已经配好
+* fe所在机器的java环境已经配好
+* fe master所在的机器mysql client已经安装
 
-## step 2 : 下载StarRocks_Ansible
+## 使用starrocks_ansible
 
-    https://github.com/mklzl/starrocks_ansible
+### 安装sr集群
 
-## step 3 : 编辑配置文件
+1. 下载ansible
 
-### 编辑参与主机groups,请根据自身集群规划，编辑对应主机组
+   ````
+   #在线安装ansible
+   yum install ansible
+   #离线安装ansible
+   https://blog.csdn.net/xzm5708796/article/details/89357434
+   ````
 
-* vi /etc/ansible/hosts
+2. 获取starrocks_ansible工具包
 
-        ## 集群cluster1中参与的机器ip
-        [cluster1.sr_hosts]
-        192.168.213.162
-        192.168.213.163
-        192.168.213.164
+   ````
+   git clone https://github.com/mklzl/starrocks_ansible
+   ````
 
-        ##集群cluster1中fe所在机器的ip
-        [cluster1.frontends]
-        192.168.213.162
-        192.168.213.163
-        192.168.213.164
+3. 机器规划
 
-        ##集群cluster1中master节点所在的ip
-        [cluster1.master]
-        192.168.213.162
+   ```
+   master : 192.168.1.241
+   follower: 192.168.1.239 192.168.1.243
+   backends: 192.168.1.241 192.168.1.239 192.168.1.243
+   brokers: 192.168.1.241 192.168.1.239 192.168.1.243
+   sr版本： StarRocks-2.1.8
+   集群名称：cluster1
+   ```
 
-        ##集群cluster1中follower所在节点的ip
-        [cluster1.follower]
-        192.168.213.163
-        192.168.213.164
+4. 配置ansible host规划
 
-        ##集群cluster1中be所在节点的ip
-        [cluster1.backends]
-        192.168.213.162
-        192.168.213.163
-        192.168.213.164
+   * 编辑 /etc/ansible/hosts文件，加入以下内容
 
-        ##集群cluster1中broker节点所在的ip
-        [cluster1.brokers]
-        192.168.213.162
-        192.168.213.163
-        192.168.213.164
-        
-        ## 要进行扩缩容的fe所在的ip
-        [cluster1.scale_fe]
-        192.168.213.162
-
-        ## 要进行扩缩容的be所在的ip
-        [cluster1.scale_be]
-        192.168.213.165
-         
-        ## 要进行扩缩容的broker所在的ip
-        [cluster1.scale_broker]
-        192.168.213.165
-
-        ## prometheus所在的ip
-        [prometheus]
-        192.168.0.233
-      
-        ## grafana所在的ip
-        [grafana]    
-        192.168.0.233
-
-        ## node-exporter所在的ip
-        [node-exporter]
-        192.168.0.233
+     ```
+     ##要部署的sr的机器的ip
+     [cluster1.sr_hosts]
+     192.168.1.239
+     192.168.1.241
+     192.168.1.243
      
-        ## alertmanager所在的ip
-        [alertmanager]
-        192.168.0.233
-
-        ## be节点宕机重启节点
-        [be_auto_start]
-        192.168.0.231
-        192.168.0.232
-        192.168.0.233
-
-        ## fe节点宕机重启节点
-        [fe_auto_start]
-        192.168.0.231
-        192.168.0.232
-        192.168.0.233
+     ##要部署fe的机器的ip
+     [cluster1.frontends]
+     192.168.1.239
+     192.168.1.241
+     192.168.1.243
+     
+     ##要部署的master机器的ip
+     [cluster1.master]
+     192.168.1.241
+     
+     ##要部署的follower的机器的ip
+     [cluster1.follower]
+     192.168.1.239
+     192.168.1.243
+     
+     ##要部署的be机器的ip
+     [cluster1.backends]
+     192.168.1.239
+     192.168.1.241
+     192.168.1.243
+     
+     ##要部署的broker机器的ip
+     [cluster1.brokers]
+     192.168.1.239
+     192.168.1.241
+     192.168.1.243
+     
+     ##要进行扩缩容fe机器所在的ip（不需要扩缩容功能可以不配置）
+     [cluster1.scale_fe]
+     192.168.1.243
+     
+     ##要进行扩缩容be机器所在的ip（不需要扩缩容功能可以不配置）
+     [cluster1.scale_be]
+     192.168.1.243
+     
+     ##要进行扩缩容broker机器所在的ip（不需要扩缩容功能可以不配置）
+     [cluster1.scale_broker]
+     192.168.1.243
+     
+     ```
+
+   * 编辑集群规划配置文件 (starrocks_ansible/conf/<b>cluster1.yml</b>) 这里的集群名字请和上一步中的集群名字保持一致，例如这里都是<b>cluster1</b>
+
+     ````
+     ---
+     ##指明 各个角色的ip
+     follower: [192.168.1.239,192.168.1.243]
+     backends: [192.168.1.239,192.168.1.241,192.168.1.243]
+     brokers: [192.168.1.239,192.168.1.241,192.168.1.243]
+     master: 192.168.1.241
+     ````
+
+   * 编辑初始化配置文件（starrocks_ansible/conf/setup_vars.yml）
+
+     ````
+     ---
+     starrocks_ansible_home: /home/starrocks/sr_ansible/starrocks_ansible
+     
+     ## fe和be的网络配置
+     fe_priority_networks: 192.168.1.0/24
+     be_priority_networks: 192.168.1.0/24
+     
+     ##压缩包所在路径
+     sr_filepath: /home/starrocks/starrocks_ansible/StarRocks-2.1.8.tar.gz
+     ##压缩包要解压的路径
+     dest_filepath: /home/starrocks/starrocks_ansible
+     ##解压后sr的路径
+     sr_home: /home/starrocks/starrocks_ansible/StarRocks-2.1.8
+     ##原生配置文件所在的路径
+     fe_conf_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.8/fe/conf/fe.conf
+     be_conf_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.8/be/conf/be.conf
+     ##fe元数据路径
+     metadata_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.8/fe/meta
+     ##be数据路径
+     storage_root_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.8/be/storage
+     java_home: /usr/java/jdk1.8.0_131
+     
+     ##端口配置
+     http_port: 8036
+     rpc_port: 9026
+     query_port: 9036
+     edit_log_port: 9016
+     be_port: 9066
+     webserver_port: 8046
+     heartbeat_service_port: 9056
+     brpc_port: 8066
+     broker_ipc_port: 8000
+     
+     ````
+
+   * 进行初始化集群（<b>仅第一次安装集群时执行</b>）
+
+     ````
+     ansible-playbook -e "cluster=cluster1" ../core/setup.yml
+     ````
+
+   * 添加角色（<b>仅第一次安装集群时执行</b>）
+
+     ````
+     ansible-playbook -e "cluster=cluster1" ../core/add_roles.yml
+     ````
 
+   * 查看集群状态
 
+     ````
+     登录到master节点，然后show backends;show frontends;show broker;查看各个角色状态是否正确
+     ````
 
-### 编辑初始化安装机器配置变量文件
+   * 一键停止所有集群角色
 
-* vi setup_vars.yml
+     ````
+     ansible-playbook -e "cluster=cluster1" ../core/stop_all.yml
+     ````
 
-      ---
-      # fe节点的ip网段配置
-      # fe_priority_networks: 192.168.213.0/24
-  
-      # be节点的ip网段配置
-      # be_priority_networks: 192.168.213.0/24
+   * 一键启动所有集群角色
 
-      # 待安装的starrocks压缩包所在路径，请写绝对路径
-      sr_filepath: /home/starrocks/starrocks_ansible/StarRocks-2.1.3.tar.gz
-  
-      # starrocks压缩包要解压安装的位置
-      dest_filepath: /home/starrocks/starrocks_ansible
-      
-      # 解压后，sr的安装目录
-      sr_home: /home/starrocks/starrocks_ansible/StarRocks-2.1.3  
+     ````
+     ansible-playbook -e "cluster=cluster1" ../core/start_all.yml
+     ````
 
-      # 首次安装请保持与安装内的fe.conf路径一致，如基于已有的fe.conf安装请指定已有的fe.conf路径
-      fe_conf_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/fe/conf/fe.conf
+### 扩缩容集群
 
-      # 首次安装请保持与安装内的fe.conf路径一致，如基于已有的fe.conf安装请指定已有的fe.conf路径
-      be_conf_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/be/conf/be.conf
-      
-      # fe元数据存储目录，如无特殊情况请配置到fe目录下
-      metadata_path: /home/starrocks/starrocks_ansible/StarRocks-2.1.3/fe/meta
-  
-      # be数据存储目录，建议配置到挂载磁盘容量大的目录下(df -h查看哪块磁盘容量大)
-      storage_root_path: /extdata/storage
+1. 配置扩缩容配置文件(分别写入要扩缩容的节点角色的ip)
 
-      # 机器java_home所在路径，请确保所有机器保持一致
-      java_home: /usr/java/jdk1.8.0_131
-  
+   ````
+   vi starrocks_ansible/conf/scale_fe_vars.yml
+   
+   ---
+   scale_frontends: 192.168.1.243
+   
+   vi starrocks_ansible/conf/scale_be_vars.yml
+   
+   ---
+   scale_backends: 192.168.1.243
+   
+   vi starrocks_ansible/conf/scale_broker_vars.yml
+   
+   ---
+   scale_brokers: 192.168.1.243
+   
+   ````
 
-      # fe端口配置，如没有特殊情况(端口冲突)无需配置默认即可
-      http_port: 8030
-      rpc_port: 9020
-      query_port: 9030
-      edit_log_port: 9010
-  
-      # be端口配置，如没有特殊情况(端口冲突)无需配置默认即可
-      be_port: 9060
-      webserver_port: 8040
-      heartbeat_service_port: 9050
-      brpc_port: 8060
-  
-      # broker端口配置，如没有特殊情况(端口冲突)无需配置默认即可
-      broker_ipc_port: 8000
+2. 执行扩缩容（in代表 缩容，out代表扩容）
 
-## 监控服务放在另外一个配置文件：
+   * 扩缩容broker
 
-* vi ./conf/monitor_vars.yml
+   ````
+   ansible-playbook -e "cluster=cluster1 action=in" ../core/scale_broker.yml
+   ansible-playbook -e "cluster=cluster1 action=out" ../core/scale_broker.yml
+   ````
 
-      #安装路径
-      prometheus_dest_path: /opt/module
-      node_exporter_dest_path: /opt/module
-      alertmanager_dest_path: /opt/module
-      grafana_dest_path: /opt/module
-      pushgateway_dest_path: /opt/module
+   
 
-      #监控服务ip/端口
-      fe: '"192.168.0.231:11110","192.168.0.232:11110","192.168.0.233:11110"'
-      be: '"192.168.0.231:11111","192.168.0.232:11111","192.168.0.233:11111"'
-      alertmanager: 192.168.0.233:9093
-      node_exporter: '"192.168.0.231:9100","192.168.0.232:9100","192.168.0.233:9100","192.168.0.234:9100","192.168.0.235:9100","192.168.0.236:9100"'
-      pushgateway: '"192.168.0.233:9091"'
-  
+   * 扩缩容be
 
+     ```
+     ansible-playbook -e "cluster=cluster1 action=in" ../core/scale_be.yml
+     ansible-playbook -e "cluster=cluster1 action=out" ../core/scale_be.yml
+     ```
 
-## step 4 : 编辑当前集群配置文件
+     
 
-* vi ./conf/cluster1.yml
+   * 扩缩容fe
 
-      ---
-      follower: [192.168.213.162,192.168.213.163]
-      backends: [192.168.213.162,192.168.213.163,192.168.213.164]
-      brokers: [192.168.213.162,192.168.213.163,192.168.213.164]
-      master: 192.168.213.162
-
-
-
-## step 5 : 检查机器环境（请根据提示，检查对应环境是否具备）
+     ````
+     ansible-playbook -e "cluster=cluster1 action=in" ../core/scale_fe.yml
+     ansible-playbook -e "cluster=cluster1 action=out" ../core/scale_fe.yml
+     ````
 
-      ansible-playbook -e "cluster=cluster1"  ./core/check_env.yml
-      
-
-## step 6 : 启动初始化集群
 
-      ansible-playbook -e "cluster=cluster1" ./core/setup.yml
 
-## step 7 : 添加集群角色
+### 集群升降级
 
-    ansible-playbook -e "cluster=cluster1" ./core/add_roles.yml
+1. 编辑升降级配置文件
 
-## step 8 : 查看集群状态
+   * vi starrocks_ansible/conf/upgrade_vars.yml 
 
-    可以根据自己配置的具体情况，登录集群，通过show frontends;show backends;show broker;查看集群的搭建情况
-
-## step 9 : 启停集群
+     ````
+     ---
+     ##新版本压缩包所在位置
+     newsr_filepath: /home/starrocks/starrocks_ansible/StarRocks-2.1.10.tar.gz
+     ##解压路径 建议和上述路径在同级
+     newsr_destpath: /home/starrocks/starrocks_ansible
+     ##新的版本解压后的home路径
+     newsr_home: /home/starrocks/starrocks_ansible/StarRocks-2.1.10
+     java_home: /usr/java/jdk1.8.0_131
+     ````
 
-    #stop all
-    ansible-playbook -e "cluster=cluster1" ./core/stop_all.yml
-    #start all
-    ansible-playbook -e "cluster=cluster1" ./core/start_all.yml
+2. 执行升降级
 
-## step 10: 升级或者回滚集群
+   ````
+   ansible-playbook -e "cluster=cluster1" ../core/upgrade.yml
+   ````
 
 
-### 编辑升级回滚所需配置文件
 
-* vi ./conf/upgrade_vars.yml
-
-      ---
-      #需要回滚或者升级的压缩包所在路径
-      newsr_filepath: /home/starrocks/starrocks_ansible/StarRocks-2.1.4.tar.gz
-
-      #压缩包解压路径
-      newsr_destpath: /home/starrocks/starrocks_ansible
-      
-      #解压后的sr_home
-      newsr_home: /home/starrocks/starrocks_ansible/StarRocks-2.1.4
-      
-      #java_home所在路径
-      java_home: /usr/java/jdk1.8.0_131
-
-### 执行升级或者回滚
-
-    ansible-playbook -e "cluster=cluster1" ./core/upgrade.yml
-    
-## step 11 : 扩缩容集群
-
-### 编辑配置文件
-
-* vi /etc/ansible/hosts
-增加以下配置
-
-        ## 要进行扩缩容的fe所在的ip
-        [cluster1.scale_fe]
-        192.168.1.239
-
-        ## 要进行扩缩容的be所在的ip
-        [cluster1.scale_be]
-        192.168.1.239
-         
-        ## 要进行扩缩容的broker所在的ip
-        [cluster1.scale_broker]
-        192.168.1.239
-
-* vi ./conf/scale_be_vars.yml
- 
-        ---
-        ## 要进行扩缩容的fe
-        backends: 192.168.1.239
-* vi ./conf/scale_broker_vars.yml
-
-        ---
-        ## 要进行扩缩容的broker
-        brokers: 192.168.1.239
-
-* vi ./conf/scale_fe_vars.yml
-
-        ---
-        ## 要进行扩缩容的fe
-        frontends: 192.168.1.239
-### 执行扩缩容（in代表缩容，out代表扩容）
-#### 扩容
-* broker
-        
-        ansible-playbook -e "cluster=cluster1 action=in" ./core/scale_broker.yml
-* be
-        
-        ansible-playbook -e "cluster=cluster1 action=in" ./core/scale_be.yml
-* fe
-        
-        ansible-playbook -e "cluster=cluster1 action=in" ./core/scale_fe.yml
-#### 缩容
-* broker 
-        
-        ansible-playbook -e "cluster=cluster1 action=out" ./core/scale_broker.yml
-* be
-        
-        ansible-playbook -e "cluster=cluster1 action=out" ./core/scale_be.yml
-* fe
-        
-        ansible-playbook -e "cluster=cluster1 action=out" ./core/scale_fe.yml
-#### 前置环境补充：
-
-#### mysql一键部署：
-
-- hosts下添加需要安装部署mysql的机器ip
-- conf目录下添加mysql密码
-- ansible-playbook mysql.yml即可
-
-补充：自动部署了远程访问以及大小写不敏感
-        
-        
-### 使用示例
-
-#### cluster1环境参数
-* （如有多个集群，请在对应配置中配置好对应的cluster配置，host中clusterX应当于配置文件clusterX.yml和启动命令中的clusterX保存一致）
-
-
-* 节点规划
-
-      3fe + 3be + 3broker
-* frontends
-
-      192.168.1.239
-      192.168.1.241
-      192.168.1.243
-* backends
-
-      192.168.1.239
-      192.168.1.241
-      192.168.1.243
-* brokers
-
-      192.168.1.239
-      192.168.1.241
-      192.168.1.243
-* master
-
-      192.168.1.241
-* follower
-
-      192.168.1.239
-      192.168.1.243
-* 安装所需压缩包所在路径
-
-      /home/starrocks/starrocks_ansible/StarRocks-2.1.3.tar.gz
-* 生产环境fe和be的配置环境所在位置
-
-      /home/starrocks/fe.conf
-      /home/starrocks/be.conf
-* java_home
-
-      /usr/java/jdk1.8.0_131
-
-#### 编辑配置文件
-
-* 编辑主机组
-      
-      vi /etc/ansible/hosts 添加以下内容
-
-      [cluster1.sr_hosts]
-      192.168.1.239
-      192.168.1.241
-      192.168.1.243
-      
-      
-      [cluster1.frontends]
-      192.168.1.239
-      192.168.1.241
-      192.168.1.243
-      
-      [cluster1.master]
-      192.168.1.241
-      
-      [cluster1.follower]
-      192.168.1.239
-      192.168.1.243
-      193.
-      [cluster1.backends]
-      192.168.1.239
-      192.168.1.241
-      192.168.1.243
-      
-      [cluster1.scale_fe]
-      192.168.1.239
-
-      [cluster1.scale_be]
-      192.168.1.239
-      
-      [cluster1.scale_broker]
-      192.168.1.239
-
-      
-      [cluster1.brokers]
-      192.168.1.239
-      192.168.1.241
-      192.168.1.243
-
-* 编辑初始化配置
-  
-      vi setup_vars.yml
-
-      ---
-      heartbeat_service_port: 9056
-      edit_log_port: 9016
-      query_port: 9036
-      broker_ipc_port: 8000
-      sr_filepath: /home/starrocks/starrocks_ansible/StarRocks-2.1.3.tar.gz
-      dest_filepath: /home/starrocks/starrocks_ansible
-      sr_home: /home/starrocks/starrocks_ansible/StarRocks-2.1.3
-      fe_conf_path: /home/starrocks/fe.conf
-      be_conf_path: /home/starrocks/be.conf
-      java_home: /usr/java/jdk1.8.0_131
-      
-      vi ./conf/cluster1.yml
-
-      ---
-      follower: [192.168.1.239,192.168.1.243]
-      backends: [192.168.1.239,192.168.1.241,192.168.1.243]
-      brokers: [192.168.1.239,192.168.1.241,192.168.1.243]
-      master: 192.168.1.241
-
-* 启动初始化操作
-
-      ansible-playbook -e "cluster=cluster1"  setup.yml
-* 添加角色
-
-      ansible-playbook -e "cluster=cluster1"  add_roles.yml
-
-#### 集群升降级
-* 前置条件
-
-      集群从2.1.3升级为2.1.4
-      新安装包所在目录为/home/starrocks/starrocks_ansible/StarRocks-2.1.4.tar.gz
-
-* 编辑升降级配置文件
-    
-      vi upgrade_vars.yml
-
-      ---
-      newsr_filepath: /home/starrocks/starrocks_ansible/StarRocks-2.1.4.tar.gz
-      newsr_destpath: /home/starrocks/starrocks_ansible
-      newsr_home: /home/starrocks/starrocks_ansible/StarRocks-2.1.4
-      java_home: /usr/java/jdk1.8.0_131
-
-
-* 执行升降级操作
-
-      ansible-playbook -e "cluster=cluster1"  upgrade.yml
-
-* 查看集群状态
-
-    通过show frontends;show backends;show broker;查看版本信息
-    
- #### 集群扩缩容
- * 前置条件
- 这里测试扩缩容 192.168.1.239机器的fe be broker
- * 编辑配置文件
-
-  vi scale_fe_vars.yml
-      
-      ---
-      
-      frontends: 192.168.1.239
-
-      
-  vi scale_be_vars.yml
-      
-      ---
-      
-      backends: 192.168.1.239
-
-      
-  vi scale_broker_vars.yml
-      
-      ---
-      
-      brokers: 192.168.1.239
-      
-* 执行扩容
-
-      ansible-playbook -e "cluster=cluster1 action=out" ./core/scale_broker.yml
-      ansible-playbook -e "cluster=cluster1 action=out" ./core/scale_be.yml
-      ansible-playbook -e "cluster=cluster1 action=out" ./core/scale_fe.yml
-
-* 执行缩容
-
-      ansible-playbook -e "cluster=cluster1 action=in" ./core/scale_broker.yml
-      ansible-playbook -e "cluster=cluster1 action=in" ./core/scale_be.yml
-      ansible-playbook -e "cluster=cluster1 action=in" ./core/scale_fe.yml

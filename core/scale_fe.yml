@@ -19,7 +19,7 @@
     when: action == "out"
   - name: scp fe.conf
     copy: 
-      src: "{{ fe_conf_path }}"
+      src: "{{ sr_home }}/fe/conf/fe.conf"
       dest: "{{ sr_home }}/fe/conf/"
       force: yes
     when: action == "out"
@@ -42,15 +42,16 @@
   vars_files:
     - ../conf/setup_vars.yml
     - ../conf/scale_fe_vars.yml
+    - ../conf/{{ cluster }}.yml
   tasks:
   - name: scale {{ action }} fe roles
     shell:
       cmd: echo "alter system add follower \"{{ item }}:{{ edit_log_port }}\";" | mysql -h{{ master }} -P{{ query_port }} -uroot
-    with_items: "{{frontends}}"
+    with_items: "{{scale_frontends}}"
     when: action == "out"
   - name: scale {{ action }} fe roles
     shell:
       cmd: echo "alter system drop follower \"{{ item }}:{{ edit_log_port }}\";" | mysql -h{{ master }} -P{{ query_port }} -uroot
-    with_items: "{{frontends}}"
+    with_items: "{{scale_frontends}}"
     when: action == "in"
 
