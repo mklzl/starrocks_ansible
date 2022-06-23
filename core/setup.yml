@@ -16,8 +16,9 @@
       state: directory
   - name: mkdir storage
     file: 
-      path: "{{ storage_root_path }}"
+      path: "{{ item }}"
       state: directory
+    with_items: "{{storage_root_path.split(';')}}"
   - name: export java home for start_fe
     lineinfile: 
       path: "{{ sr_home }}/fe/bin/start_fe.sh"
