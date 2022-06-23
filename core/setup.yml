@@ -16,7 +16,7 @@
       state: directory
   - name: mkdir storage
     file: 
-      path: "{{ item }}"
+      path: "{{ item | regex_replace(',medium:HDD') | regex_replace(',medium:SSD') }}"
       state: directory
     with_items: "{{storage_root_path.split(';')}}"
   - name: export java home for start_fe
